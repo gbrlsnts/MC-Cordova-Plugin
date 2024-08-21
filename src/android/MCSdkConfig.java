@@ -113,16 +113,6 @@ public class MCSdkConfig {
             Log.e(TAG, "Unable to open config.xml.", ioe);
         }
 
-        if (!senderIdSet) {
-            try {
-                builder.setSenderId(FirebaseApp.getInstance().getOptions().getGcmSenderId());
-            } catch (Exception e) {
-                Log.e(TAG,
-                    "Unable to retrieve sender id.  Push messages will not work for Marketing Cloud.",
-                    e);
-            }
-        }
-
         return builder;
     }
 }
