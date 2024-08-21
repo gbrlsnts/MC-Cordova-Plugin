@@ -35,6 +35,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import com.salesforce.marketingcloud.MarketingCloudConfig;
 import com.salesforce.marketingcloud.sfmcsdk.SFMCSdk;
 import com.salesforce.marketingcloud.sfmcsdk.SFMCSdkModuleConfig;
@@ -60,6 +62,17 @@ public class MCInitProvider extends ContentProvider {
                     // add default tag `Corodova`
                     SFMCSdk.requestSdk(sdk -> sdk.mp(
                             module -> module.getRegistrationManager().edit().addTag("Cordova").commit()));
+
+                    try {
+                        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                SFMCSdk.requestSdk(sdk -> sdk.mp(
+                                    module -> module.pushMessageManager.setPushToken(task.result)));
+                            }
+                        }
+                    } catch (e: java.lang.Exception) {
+                        Log.e(TAG, "Failed to retrieve InstanceId from Firebase.")
+                    }
                 }
                 return null;
             });
