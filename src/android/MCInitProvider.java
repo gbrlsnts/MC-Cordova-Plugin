@@ -25,6 +25,8 @@
  */
 package com.salesforce.marketingcloud.cordova;
 
+import static com.salesforce.marketingcloud.cordova.MCCordovaPlugin.TAG;
+
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
@@ -64,15 +66,21 @@ public class MCInitProvider extends ContentProvider {
                             module -> module.getRegistrationManager().edit().addTag("Cordova").commit()));
 
                     try {
-                        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                SFMCSdk.requestSdk(sdk -> sdk.mp(
-                                    module -> module.pushMessageManager.setPushToken(task.result)));
+                        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                SFMCSdk.requestSdk(sdk ->
+                                        sdk.mp(mp ->
+                                                mp.getPushMessageManager().setPushToken(task.getResult())
+                                        )
+                                );
                             }
-                        }
-                    } catch (e: java.lang.Exception) {
-                        Log.e(TAG, "Failed to retrieve InstanceId from Firebase.")
+                        });
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed to retrieve InstanceId from Firebase.", e);
                     }
+
+
+
                 }
                 return null;
             });
